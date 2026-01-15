@@ -66,12 +66,8 @@ npm install
 
 3️⃣ Create .env File
 Create a file named .env in the root folder and add:
-DATABASE_URL=postgresql://username:password@localhost:5432/dental_clinic
 PORT=5000
-Replace:
-username → your PostgreSQL username
-password → your PostgreSQL password
-dental_clinic → your database name
+DATABASE_URL=postgresql://postgres:1234@localhost:5432/dental_clinic_db
 
 4️⃣ Run the Server
 npm start
