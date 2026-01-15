@@ -6,6 +6,7 @@ import db from "./db.js";
 
 import authRoutes from "./routes/auth.js";
 import doctorsRoutes from "./routes/doctors.js";
+import appointmentsRoutes from "./routes/appointments.js";
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/doctors", doctorsRoutes);
+app.use("/api/appointments", appointmentsRoutes);
 
 const PORT = process.env.PORT || 5000;
 
@@ -28,9 +30,9 @@ db.connect()
   .then(() => {
     console.log("✅ Connected to PostgreSQL");
     app.listen(PORT, () => {
-      console.log(`✅ Server running on port ${PORT}`);
+      console.log(` Server running on port ${PORT}`);
     });
   })
   .catch((err) => {
-    console.error("❌ DB connection error:", err.message);
+    console.error(" DB connection error:", err.message);
   });
