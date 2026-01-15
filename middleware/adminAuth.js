@@ -1,5 +1,5 @@
 export default function adminAuth(req, res, next) {
-  const adminId = req.header("x-admin-id");
+  const adminId = req.headers["x-admin-id"];
 
   if (!adminId) {
     return res.status(403).json({ message: "Admin access only" });

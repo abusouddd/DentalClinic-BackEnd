@@ -6,14 +6,11 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     const result = await db.query(
-      `SELECT "DoctorID" AS doctorid, "Name" AS name, "Role" AS role
-       FROM "Doctor"
-       ORDER BY "DoctorID" ASC`
+      "SELECT doctorid, name, role FROM doctor ORDER BY doctorid"
     );
-
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: "Failed to fetch doctors" });
   }
 });
 
