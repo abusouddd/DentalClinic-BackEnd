@@ -69,6 +69,7 @@ Create a file named .env in the root folder and add:
 PORT=5000
 DATABASE_URL=postgresql://postgres:1234@localhost:5432/dental_clinic_db
 
+
 4️⃣ Run the Server
 npm start
 
