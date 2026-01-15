@@ -58,7 +58,7 @@ DentalClinic-BackEnd/
 
 ### 1️⃣ Clone the Repository
 ```bash
-git clone <your-repo-url>
+git clone
 cd DentalClinic-BackEnd
 
 2️⃣ Install Dependencies
