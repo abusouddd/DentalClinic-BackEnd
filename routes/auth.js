@@ -18,15 +18,15 @@ router.post("/signup", async (req, res) => {
 
   try {
     const result = await db.query(
-      `INSERT INTO "User" ("Name", "Email", "Password")
+      `INSERT INTO "User" (Name, Email, Password)
        VALUES ($1, $2, $3)
-       RETURNING "UserID", "Name", "Email"`,
+       RETURNING UserID, Name, Email`,
       [name, email, password]
     );
 
-    res.status(201).json(result.rows[0]);
+    return res.status(201).json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    return res.status(400).json({ error: err.message });
   }
 });
 
@@ -34,27 +34,21 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body || {};
 
   if (!email || !password) {
-    return res.status(400).json({
-      message: "email and password are required",
-    });
+    return res.status(400).json({ message: "email and password are required" });
   }
 
-  try {
-    const result = await db.query(
-      `SELECT "UserID", "Name", "Email"
-       FROM "User"
-       WHERE "Email" = $1 AND "Password" = $2`,
-      [email, password]
-    );
+  const result = await db.query(
+    `SELECT UserID, Name, Email
+     FROM "User"
+     WHERE Email = $1 AND Password = $2`,
+    [email, password]
+  );
 
-    if (result.rows.length === 0) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    res.json(result.rows[0]);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  if (result.rows.length === 0) {
+    return res.status(401).json({ message: "Invalid credentials" });
   }
+
+  return res.json(result.rows[0]);
 });
 
 router.put("/update", async (req, res) => {
@@ -62,19 +56,11 @@ router.put("/update", async (req, res) => {
 
   if (!userId || !name || !email) {
     return res.status(400).json({
-      message: "userId, name, email are required",
+      message: "userId, name, and email are required",
     });
   }
 
-  try {
-    const updatedUser = await db.query(
-      `UPDATE "User"
-       SET "Name" = $1, "Email" = $2
-       WHERE "UserID" = $3
-       RETURNING "UserID", "Name", "Email"`,
-      [name, email, userId]
-    );
-
+    // If user wants to change password (optional)
     if (newPassword) {
       if (!currentPassword) {
         return res.status(400).json({
@@ -83,55 +69,57 @@ router.put("/update", async (req, res) => {
       }
 
       const check = await db.query(
-        `SELECT "UserID"
+        `SELECT UserID
          FROM "User"
-         WHERE "UserID" = $1 AND "Password" = $2`,
+         WHERE UserID = $1 AND Password = $2`,
         [userId, currentPassword]
       );
 
       if (check.rows.length === 0) {
-        return res.status(401).json({ message: "Wrong current password" });
+        return res.status(401).json({ message: "Current password is incorrect" });
       }
 
-      await db.query(
+      const result = await db.query(
         `UPDATE "User"
-         SET "Password" = $1
-         WHERE "UserID" = $2`,
-        [newPassword, userId]
+         SET Name = $1, Email = $2, Password = $3
+         WHERE UserID = $4
+         RETURNING UserID, Name, Email`,
+        [name, email, newPassword, userId]
       );
+
+      return res.json(result.rows[0]);
     }
 
-    res.json(updatedUser.rows[0]);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
+    const result = await db.query(
+      `UPDATE "User"
+       SET Name = $1, Email = $2
+       WHERE UserID = $3
+       RETURNING UserID, Name, Email`,
+      [name, email, userId]
+    );
+
+    return res.json(result.rows[0]);
 });
 
 router.post("/admin/login", async (req, res) => {
   const { email, password } = req.body || {};
 
   if (!email || !password) {
-    return res.status(400).json({
-      message: "email and password are required",
-    });
+    return res.status(400).json({ message: "email and password are required" });
   }
 
-  try {
-    const result = await db.query(
-      `SELECT "AdminID", "Email"
-       FROM "Admin"
-       WHERE "Email" = $1 AND "Password" = $2`,
-      [email, password]
-    );
+  const result = await db.query(
+    `SELECT AdminID, Email
+     FROM Admin
+     WHERE Email = $1 AND Password = $2`,
+    [email, password]
+  );
 
-    if (result.rows.length === 0) {
-      return res.status(401).json({ message: "Invalid admin credentials" });
-    }
-
-    res.json(result.rows[0]);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  if (result.rows.length === 0) {
+    return res.status(401).json({ message: "Invalid admin credentials" });
   }
+
+  return res.json(result.rows[0]);
 });
 
 export default router;
